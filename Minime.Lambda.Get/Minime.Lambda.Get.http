@@ -1,0 +1,6 @@
+@Minime.Lambda.Get_HostAddress = http://localhost:5023
+
+GET {{Minime.Lambda.Get_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

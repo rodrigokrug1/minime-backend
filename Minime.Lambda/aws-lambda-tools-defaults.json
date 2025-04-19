@@ -1,0 +1,21 @@
+
+{
+    "region" : "us-east-1",
+    "profile" : "rodrigokrug",
+    "configuration" : "Release",
+    "framework"     : "net8.0",
+    "function-name" : "Minime",
+    "function-description" : "",
+    "package-type"         : "Zip",
+    "function-handler"     : "Minime.Lambda",
+    "function-memory-size" : 512,
+    "function-role"        : "arn:aws:iam::082861799996:role/service-role/mail-role-kfbmvmff",
+    "function-timeout"     : 15,
+    "function-runtime"     : "dotnet8",
+    "function-architecture" : "x86_64",
+    "function-subnets"      : "",
+    "function-security-groups" : "",
+    "tracing-mode"             : "PassThrough",
+    "environment-variables"    : "\"GOOGLE_RECAPTCHA_KEY\"=\"6Lf6WRQrAAAAAOLYMoIzeCZKj5B_FzjuMNwHtbsn\";\"GOOGLE_RECAPTCHA_SECRET\"=\"6Lf6WRQrAAAAAHuMpdPnYlnEtvDgULqy_mzecmes\"",
+    "image-tag"                : ""
+}
