@@ -16,6 +16,6 @@
     "function-subnets"      : "",
     "function-security-groups" : "",
     "tracing-mode"             : "PassThrough",
-    "environment-variables"    : "\"GOOGLE_RECAPTCHA_KEY\"=\"6Lf6WRQrAAAAAOLYMoIzeCZKj5B_FzjuMNwHtbsn\";\"GOOGLE_RECAPTCHA_SECRET\"=\"6Lf6WRQrAAAAAHuMpdPnYlnEtvDgULqy_mzecmes\"",
+    "environment-variables"    : "\"GOOGLE_RECAPTCHA_KEY\"=\"6Lf6WRQrAAAAAOLYMoIzeCZKj5B_FzjuMNwHtbsn\";\"GOOGLE_RECAPTCHA_SECRET\"=\"key\"",
     "image-tag"                : ""
 }
