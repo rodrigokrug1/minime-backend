@@ -1,6 +1,16 @@
 @Minime.Lambda_HostAddress = http://localhost:5118
 
-GET {{Minime.Lambda_HostAddress}}/weatherforecast/
-Accept: application/json
+### Cria uma nova URL encurtada (requer token reCAPTCHA)
+POST {{Minime.Lambda_HostAddress}}/link
+Content-Type: application/json
+Authorization: Bearer {{recaptchaToken}}
 
-###
+{
+  "url": "https://www.example.com/uma/url/bem/grande"
+}
+
+### Redireciona para a URL original
+GET {{Minime.Lambda_HostAddress}}/abc123
+
+### Retorna a URL original como texto
+GET {{Minime.Lambda_HostAddress}}/url?uId=abc123

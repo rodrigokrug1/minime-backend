@@ -1,53 +1,37 @@
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
-using Minime.Service.Recaptcha;
-using Minime.Services.DynamoDB;
+using Minime.Lambda.Endpoints;
+using Minime.Lambda.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 builder.Services.AddAWSLambdaHosting(LambdaEventSource.RestApi);
-builder.Services.AddHttpContextAccessor();
+builder.Services.AddOpenApi();
 
-// AWS
-var awsOptions = builder.Configuration.GetAWSOptions();
-builder.Services.AddDefaultAWSOptions(awsOptions);
+builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions());
 builder.Services.AddAWSService<IAmazonDynamoDB>();
-builder.Services.AddScoped<IDynamoDBContext, DynamoDBContext>();
-builder.Services.AddScoped<IDynamoDBService, DynamoDbService>();
+builder.Services.AddSingleton<IDynamoDBContext>(sp => new DynamoDBContextBuilder()
+    .WithDynamoDBClient(sp.GetRequiredService<IAmazonDynamoDB>)
+    .Build());
+builder.Services.AddSingleton<IUrlRepository, DynamoDbUrlRepository>();
 
 builder.Services.AddHttpClient<IRecaptchaService, RecaptchaService>();
 
-builder.Services.AddCors(options =>
-{
-    options.AddDefaultPolicy(policy =>
-    {
-        policy.AllowAnyOrigin()
+builder.Services.AddCors(options => options.AddDefaultPolicy(policy =>
+    policy.AllowAnyOrigin()
         .AllowAnyHeader()
-        .AllowAnyMethod();
-    });
-});
+        .AllowAnyMethod()));
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.MapOpenApi();
 }
 
 app.UseCors();
-
 app.UseHttpsRedirection();
 
-app.UseAuthorization();
-
-app.MapControllers();
+app.MapUrlEndpoints();
 
 app.Run();
