@@ -1,12 +1,18 @@
-using System.Text.RegularExpressions;
+using System.Security.Cryptography;
 using Amazon.DynamoDBv2.DataModel;
 
 namespace Minime.Lambda.Models;
 
-[DynamoDBTable("MinimeUrls")]
-public partial class MinimeUrl
+[DynamoDBTable(TableName)]
+public class MinimeUrl
 {
+    public const string TableName = "MinimeUrls";
+
     private const int UidLength = 6;
+
+    // Alfabeto fixo, sem caracteres ambíguos (0/O, 1/l/I), para que o link
+    // continue legível quando alguém o digita a partir de algo impresso.
+    private const string UidAlphabet = "abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
     public MinimeUrl()
     {
@@ -14,9 +20,9 @@ public partial class MinimeUrl
 
     public MinimeUrl(string url)
     {
-        UId = CreateUid(url);
+        UId = CreateUid();
         Url = url;
-        DateCreated = DateTime.Now.ToString();
+        DateCreated = DateTimeOffset.UtcNow.ToString("O");
     }
 
     [DynamoDBHashKey]
@@ -26,14 +32,10 @@ public partial class MinimeUrl
 
     public string DateCreated { get; set; } = string.Empty;
 
-    // Estratégia original preservada: sorteia 6 caracteres alfanuméricos da própria URL.
-    private static string CreateUid(string url)
-    {
-        var pool = NonAlphanumericRegex().Replace(url, "");
-
-        return new string([.. Enumerable.Range(0, UidLength).Select(_ => pool[Random.Shared.Next(pool.Length)])]);
-    }
-
-    [GeneratedRegex("[^a-zA-Z0-9]")]
-    private static partial Regex NonAlphanumericRegex();
+    // Sorteia do alfabeto completo, nunca dos caracteres da URL de origem:
+    // o pool antigo dependia da entrada e colapsava para pouquíssimas
+    // combinações em URLs curtas. RandomNumberGenerator em vez de Random
+    // porque um UId previsível permitiria adivinhar links de terceiros.
+    private static string CreateUid()
+        => new(RandomNumberGenerator.GetItems<char>(UidAlphabet, UidLength));
 }

@@ -17,8 +17,13 @@ builder.Services.AddSingleton<IUrlRepository, DynamoDbUrlRepository>();
 
 builder.Services.AddHttpClient<IRecaptchaService, RecaptchaService>();
 
+// A origem exata vem da configuração em vez de AllowAnyOrigin: com qualquer
+// site podendo chamar a API, o reCAPTCHA vira a única defesa do encurtador.
+var origens = builder.Configuration["OrigensPermitidas"]?.Split(',', StringSplitOptions.RemoveEmptyEntries)
+              ?? ["https://minime.cloud", "http://localhost:4321", "http://localhost:4322"];
+
 builder.Services.AddCors(options => options.AddDefaultPolicy(policy =>
-    policy.AllowAnyOrigin()
+    policy.WithOrigins(origens)
         .AllowAnyHeader()
         .AllowAnyMethod()));
 

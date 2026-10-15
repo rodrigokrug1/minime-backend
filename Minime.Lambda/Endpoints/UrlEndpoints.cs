@@ -23,7 +23,10 @@ public static class UrlEndpoints
                     return Results.StatusCode(StatusCodes.Status429TooManyRequests);
 
                 var link = await urls.CreateAsync(request.Url, cancellationToken);
-                var baseUrl = configuration["BaseUrl"] ?? "minime.cloud";
+
+                // BaseUrl é a origem completa. O cliente usa o valor como veio,
+                // sem montar o host por conta própria.
+                var baseUrl = (configuration["BaseUrl"] ?? "https://link.minime.cloud").TrimEnd('/');
 
                 return Results.Created(default(string), new { shortUrl = $"{baseUrl}/{link.UId}" });
             })
@@ -39,24 +42,11 @@ public static class UrlEndpoints
             {
                 var link = await urls.GetAsync(uid, cancellationToken);
 
-                return link is null ? Results.NoContent() : Results.Redirect(link.Url);
+                return link is null ? Results.NotFound() : Results.Redirect(link.Url);
             })
             .WithName("RedirectToUrl")
             .WithSummary("Redireciona para a URL original.")
             .Produces(StatusCodes.Status302Found)
-            .Produces(StatusCodes.Status204NoContent);
-
-        // Endpoint herdado do antigo projeto Minime.Lambda.Get: retorna a URL original como texto.
-        app.MapGet("/url", async (
-                string uId, 
-                IUrlRepository urls,
-                CancellationToken cancellationToken) =>
-            {
-                var link = await urls.GetAsync(uId, cancellationToken);
-
-                return link?.Url;
-            })
-            .WithName("GetUrl")
-            .WithSummary("Retorna a URL original a partir do identificador encurtado.");
+            .Produces(StatusCodes.Status404NotFound);
     }
 }
