@@ -13,10 +13,12 @@ public sealed class RecaptchaService(HttpClient httpClient, IConfiguration confi
         if (string.IsNullOrWhiteSpace(token) || string.IsNullOrWhiteSpace(_secret))
             return false;
 
-        using var response = await httpClient.PostAsync(
-            $"{VerifyUrl}?secret={_secret}&response={Uri.EscapeDataString(token)}",
-            content: null,
-            cancellationToken);
+        // Os dois campos vão no corpo, não na query: segredo em URL acaba em log
+        // de proxy, de CDN e no histórico de qualquer intermediário no caminho.
+        using var corpo = new FormUrlEncodedContent(
+            new Dictionary<string, string> { ["secret"] = _secret, ["response"] = token });
+
+        using var response = await httpClient.PostAsync(VerifyUrl, corpo, cancellationToken);
 
         if (!response.IsSuccessStatusCode)
             return false;
